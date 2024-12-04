@@ -309,9 +309,9 @@ else:
         # Distribución de Retornos del activo seleccionado vs Benchmark
         st.subheader(f"Distribución de Retornos: {selected_asset} vs {selected_benchmark}")
         
-        col1, col2 = st.columns(2)
+        col9, col10 = st.columns(2)
         
-        with col1:
+        with col9:
             # Histograma para el activo seleccionado
             var_asset, cvar_asset = calcular_var_cvar(returns[selected_asset])
             fig_hist_asset = crear_histograma_distribucion(
@@ -322,7 +322,7 @@ else:
             )
             st.plotly_chart(fig_hist_asset, use_container_width=True, key="hist_asset")
             
-        with col2:
+        with col10:
             # Histograma para el benchmark
             var_bench, cvar_bench = calcular_var_cvar(returns[benchmark])
             fig_hist_bench = crear_histograma_distribucion(
@@ -336,12 +336,14 @@ else:
         # Análisis de Drawdown
         st.subheader(f'Análisis de Drawdown: {selected_asset}')
 
-        col1 = st.columns(1)
+        col11 = st.columns(1)
         
-        with col1:
-            fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
+        with col11:
+            fig_drawdown_asset = graficar_drawdown_financiero(
+                df_stocks[selected_asset], 
+                f'Análisis de Drawdown - {selected_asset}'
+            )
             st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
-
 
     with tab2:
         st.header("Análisis del Portafolio")
