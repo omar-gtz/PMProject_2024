@@ -336,8 +336,11 @@ else:
         # Análisis de Drawdown
         st.subheader(f'Análisis de Drawdown: {selected_asset}')
 
-        fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
-        st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
+        col1 = st.columns(1)
+        
+        with col1:
+            fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
+            st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
 
 
     with tab2:
