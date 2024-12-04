@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 
 # Funciones auxiliares
 def obtener_datos_acciones(simbolos, start_date, end_date):
+    if end_date is None:
+        end_date = datetime.now()
     data = yf.download(simbolos, start=start_date, end=end_date)['Close']
     return data.ffill().dropna()
 
@@ -24,6 +26,12 @@ def calcular_rendimiento_ventana(returns, window):
     if len(returns) < window:
         return np.nan
     return (1 + returns.iloc[-window:]).prod() - 1
+
+def calcular_estadisticas_descriptivas(returns):
+    mean = returns.mean()
+    skew = returns.skew()
+    kurtosis = returns.kurtosis()
+    return mean, skew, kurtosis
 
 def calcular_beta(asset_returns, market_returns):
     covariance = np.cov(asset_returns, market_returns)[0, 1]
