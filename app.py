@@ -124,7 +124,6 @@ def calcular_drawdown(precios):
     return drawdown, high_water_mark
 
 def obtener_max_drawdown_info(precios):
-    """Obtiene información detallada del máximo drawdown"""
     drawdown, _ = calcular_drawdown(precios)
 
     max_drawdown = drawdown.min()
@@ -150,7 +149,6 @@ def obtener_max_drawdown_info(precios):
     }
 
 def graficar_drawdown_financiero(precios, titulo="Análisis de Drawdown"):
-    """Crea gráfico de precios y drawdown en subplots"""
     drawdown, hwm = calcular_drawdown(precios)
 
     # Crear figura con subplots
@@ -309,13 +307,10 @@ else:
         st.metric(f"Beta vs {selected_benchmark}", f"{beta_asset:.2f}")
 
         # Análisis de Drawdown
-        st.subheader(f"Análisis de Drawdown: {selected_asset}")
+        st.subheader(f'Análisis de Drawdown: {selected_asset}')
 
-        col_a = st.columns(1)
-
-        with col_a:
-            fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f"Análisis de Drawdown - {selected_asset}")
-            st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
+        fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
+        st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
 
         # Distribución de Retornos del activo seleccionado vs Benchmark
         st.subheader(f"Distribución de Retornos: {selected_asset} vs {selected_benchmark}")
