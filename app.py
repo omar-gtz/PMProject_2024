@@ -306,9 +306,6 @@ else:
         beta_asset = calcular_beta(returns[selected_asset], returns[benchmark])
         st.metric(f"Beta vs {selected_benchmark}", f"{beta_asset:.2f}")
 
-        # Análisis de Drawdown
-        st.subheader(f'Análisis de Drawdown: {selected_asset}')
-
         # Distribución de Retornos del activo seleccionado vs Benchmark
         st.subheader(f"Distribución de Retornos: {selected_asset} vs {selected_benchmark}")
         
@@ -335,6 +332,12 @@ else:
                 f'Distribución de Retornos - {selected_benchmark}'
             )
             st.plotly_chart(fig_hist_bench, use_container_width=True, key="hist_bench_1")
+
+        # Análisis de Drawdown
+        st.subheader(f'Análisis de Drawdown: {selected_asset}')
+
+        fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
+        st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
 
 
     with tab2:
