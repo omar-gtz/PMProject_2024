@@ -140,18 +140,8 @@ selected_benchmark = st.sidebar.selectbox("Seleccione el benchmark:", list(bench
 benchmark = benchmark_options[selected_benchmark]
 
 # Selección de la ventana de tiempo
-end_date = datetime.now()
-start_date_options = {
-    "1 mes": end_date - timedelta(days=30),
-    "3 meses": end_date - timedelta(days=90),
-    "6 meses": end_date - timedelta(days=180),
-    "1 año": end_date - timedelta(days=365),
-    "3 años": end_date - timedelta(days=3*365),
-    "5 años": end_date - timedelta(days=5*365),
-    "10 años": end_date - timedelta(days=10*365)
-}
-selected_window = st.sidebar.selectbox("Seleccione la ventana de tiempo para el análisis:", list(start_date_options.keys()))
-start_date = start_date_options[selected_window]
+start_date = "2010-01-01"
+end_date = "2023-12-31"
 
 if len(simbolos) != len(pesos) or abs(sum(pesos) - 1) > 1e-6:
     st.sidebar.error("El número de símbolos debe coincidir con el número de pesos, y los pesos deben sumar 1.")
@@ -172,6 +162,9 @@ else:
         st.header("Análisis de Activos Individuales")
         
         selected_asset = st.selectbox("Seleccione un activo para analizar:", simbolos)
+
+        # Calcular la media, el sesgo y el exceso de curtosis de los rendimientos diarios
+        media, sesgo, exc_curtosis = calcular_estadisticas_descriptivas(returns[selected_asset])
         
         # Calcular VaR y CVaR para el activo seleccionado
         var_95, cvar_95 = calcular_var_cvar(returns[selected_asset])
@@ -181,9 +174,14 @@ else:
         col2.metric("Sharpe Ratio", f"{calcular_sharpe_ratio(returns[selected_asset]):.2f}")
         col3.metric("Sortino Ratio", f"{calcular_sortino_ratio(returns[selected_asset]):.2f}")
         
-        col4, col5 = st.columns(2)
-        col4.metric("VaR 95%", f"{var_95:.2%}")
-        col5.metric("CVaR 95%", f"{cvar_95:.2%}")
+        col4, col5, col6 = st.columns(3)
+        col4.metric("Media", f"{media:.4f}")
+        col5.metric("Sesgo", f"{sesgo:.4f}")
+        col6.metric("Exceso de curtosis", f"{exc_curtosis:.4f}")
+
+        col7, col8 = st.columns(2)
+        col7.metric("VaR 95%", f"{var_95:.2%}")
+        col8.metric("CVaR 95%", f"{cvar_95:.2%}")
         
         # Gráfico de precio normalizado del activo seleccionado vs benchmark
         fig_asset = go.Figure()
