@@ -309,9 +309,6 @@ else:
         # Análisis de Drawdown
         st.subheader(f'Análisis de Drawdown: {selected_asset}')
 
-        fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
-        st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
-
         # Distribución de Retornos del activo seleccionado vs Benchmark
         st.subheader(f"Distribución de Retornos: {selected_asset} vs {selected_benchmark}")
         
