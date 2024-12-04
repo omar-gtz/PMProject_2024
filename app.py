@@ -117,6 +117,120 @@ def crear_histograma_distribucion(returns, var_95, cvar_95, title):
     
     return fig
 
+# Drawdown
+def calcular_drawdown(precios):
+    high_water_mark = precios.expanding().max()
+    drawdown = (precios - high_water_mark) / high_water_mark
+    return drawdown, high_water_mark
+
+def obtener_max_drawdown_info(precios):
+    """Obtiene información detallada del máximo drawdown"""
+    drawdown, _ = calcular_drawdown(precios)
+
+    max_drawdown = drawdown.min()
+    fecha_max_drawdown = drawdown.idxmin()
+    pico_anterior = precios[:fecha_max_drawdown].idxmax()
+
+    datos_posteriores = drawdown[fecha_max_drawdown:]
+    fechas_recuperacion = datos_posteriores[datos_posteriores >= 0]
+    fecha_recuperacion = fechas_recuperacion.index[0] if len(fechas_recuperacion) > 0 else None
+
+    duracion_caida = (fecha_max_drawdown - pico_anterior).days
+    duracion_recuperacion = (fecha_recuperacion - fecha_max_drawdown).days if fecha_recuperacion else None
+    duracion_total = (fecha_recuperacion - pico_anterior).days if fecha_recuperacion else None
+
+    return {
+        'max_drawdown': max_drawdown * 100,
+        'fecha_pico': pico_anterior,
+        'fecha_valle': fecha_max_drawdown,
+        'fecha_recuperacion': fecha_recuperacion,
+        'duracion_caida': duracion_caida,
+        'duracion_recuperacion': duracion_recuperacion,
+        'duracion_total': duracion_total
+    }
+
+def graficar_drawdown_financiero(precios, titulo="Análisis de Drawdown"):
+    """Crea gráfico de precios y drawdown en subplots"""
+    drawdown, hwm = calcular_drawdown(precios)
+
+    # Crear figura con subplots
+    fig = make_subplots(rows=2, cols=1,
+                       shared_xaxes=True,
+                       vertical_spacing=0.05,
+                       row_heights=[0.7, 0.3])
+
+    # Subplot 1: Precios y HWM
+    fig.add_trace(
+        go.Scatter(
+            x=precios.index,
+            y=precios.values,
+            name='Precio',
+            line=dict(color='blue'),
+        ),
+        row=1, col=1
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=hwm.index,
+            y=hwm.values,
+            name='High Water Mark',
+            line=dict(color='green', dash='dash'),
+        ),
+        row=1, col=1
+    )
+
+    # Subplot 2: Drawdown
+    fig.add_trace(
+        go.Scatter(
+            x=drawdown.index,
+            y=drawdown.values,
+            name='Drawdown',
+            line=dict(color='red'),
+            fill='tozeroy',
+            fillcolor='rgba(255,0,0,0.1)'
+        ),
+        row=2, col=1
+    )
+
+    # Línea horizontal en 0 para el drawdown
+    fig.add_hline(
+        y=0,
+        line_dash="dash",
+        line_color="gray",
+        opacity=0.5,
+        row=2
+    )
+
+    # Actualizar layout
+    fig.update_layout(
+        title=titulo,
+        height=800,  # Altura total de la figura
+        showlegend=True,
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01
+        ),
+        hovermode='x unified'
+    )
+
+    # Actualizar ejes Y
+    fig.update_yaxes(title="Precio", row=1, col=1)
+    fig.update_yaxes(
+        title="Drawdown %",
+        tickformat=".1%",
+        range=[-1, 0.1],  # Límites del drawdown entre -100% y 10%
+        row=2,
+        col=1
+    )
+
+    # Actualizar eje X
+    fig.update_xaxes(title="Fecha", row=2, col=1)
+
+    return fig
+
 # Configuración de la página
 st.set_page_config(page_title="Analizador de Portafolio", layout="wide")
 st.sidebar.title("Analizador de Portafolio de Inversión")
@@ -193,7 +307,14 @@ else:
         # Beta del activo vs benchmark
         beta_asset = calcular_beta(returns[selected_asset], returns[benchmark])
         st.metric(f"Beta vs {selected_benchmark}", f"{beta_asset:.2f}")
-        
+
+        # Análisis de Drawdown
+        st.subheader(f'Análisis de Drawdown: {selected_asset}')
+
+        fig_drawdown_asset = graficar_drawdown_financiero(df_stocks[selected_asset], f'Análisis de Drawdown - {selected_asset}')
+        st.plotly_chart(fig_drawdown_asset, use_container_width=True, key="drawdown_asset")
+
+        # Distribución de Retornos del activo seleccionado vs Benchmark
         st.subheader(f"Distribución de Retornos: {selected_asset} vs {selected_benchmark}")
         
         col1, col2 = st.columns(2)
